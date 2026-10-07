@@ -54,7 +54,7 @@ namespace HierBEM
        * @p elems[i].
        */
       SingleLayerEntryEvaluator(const std::vector<const libMesh::Elem *> &elems,
-                                const SauterTriangleQuadrature &quad);
+                                const SauterTriangleQuadrature           &quad);
 
       /**
        * Continuous FIRST (P1) or SECOND (P2) order Lagrange basis.
@@ -105,7 +105,10 @@ namespace HierBEM
      * SingleLayerEntryEvaluator.
      */
     void
-    butterflypack_single_layer_element(int *m, int *n, double *val, void *quant);
+    butterflypack_single_layer_element(int    *m,
+                                       int    *n,
+                                       double *val,
+                                       void   *quant);
   } // namespace LibMeshBEM
 } // namespace HierBEM
 

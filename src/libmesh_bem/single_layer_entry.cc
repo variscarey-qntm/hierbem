@@ -83,8 +83,8 @@ namespace HierBEM
     {
       libmesh_error_msg_if(i >= n_dofs() || j >= n_dofs(),
                            "DOF index (" << i << ", " << j
-                                         << ") out of range for "
-                                         << n_dofs() << " DOFs");
+                                         << ") out of range for " << n_dofs()
+                                         << " DOFs");
       const LaplaceSingleLayerKernel kernel;
       Real                           result = 0.;
       for (const Support &sx : supports[i])

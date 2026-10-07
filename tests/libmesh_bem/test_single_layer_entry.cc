@@ -26,7 +26,7 @@ using libMesh::Real;
 namespace
 {
   void
-  check_entries(const SingleLayerEntryEvaluator         &evaluator,
+  check_entries(const SingleLayerEntryEvaluator           &evaluator,
                 const libMesh::DenseMatrix<libMesh::Real> &V)
   {
     REQUIRE(evaluator.n_dofs() == V.m());
@@ -74,8 +74,10 @@ TEST_CASE("Single layer entries match dense P1 and P2 assembly",
       systems.init();
       const LagrangeTriangleSpace    space(mesh, system.get_dof_map());
       const SauterTriangleQuadrature quad;
-      const auto                     V =
-        assemble_lagrange_matrix(space, LaplaceSingleLayerKernel(), quad, false);
+      const auto                     V = assemble_lagrange_matrix(space,
+                                              LaplaceSingleLayerKernel(),
+                                              quad,
+                                              false);
       check_entries(SingleLayerEntryEvaluator(space, quad), V);
     }
 }
