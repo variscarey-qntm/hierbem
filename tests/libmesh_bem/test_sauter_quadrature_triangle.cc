@@ -13,12 +13,11 @@
  * @brief Verify the Sauter–Schwab quadrature for triangle pairs.
  */
 
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <libmesh/elem.h>
 #include <libmesh/fe_map.h>
 #include <libmesh/replicated_mesh.h>
-
-#include <catch2/catch_approx.hpp>
-#include <catch2/catch_test_macros.hpp>
 
 #include <array>
 #include <cmath>
@@ -37,12 +36,12 @@ using libMesh::Real;
 namespace
 {
   void
-  add_triangle(libMesh::MeshBase                  &mesh,
+  add_triangle(libMesh::MeshBase                 &mesh,
                const std::array<unsigned int, 3> &nodes)
   {
     std::unique_ptr<libMesh::Elem> elem = libMesh::Elem::build(libMesh::TRI3);
     for (unsigned int i = 0; i < 3; ++i)
-      elem->set_node(i, mesh.node_ptr(nodes[i]));
+      elem->set_node(i) = mesh.node_ptr(nodes[i]);
     mesh.add_elem(std::move(elem));
   }
 
@@ -140,17 +139,18 @@ TEST_CASE("Neighboring type detection and permutations", "[libmesh_bem]")
   REQUIRE(detect_triangle_pair(e0, e3).type == CellNeighboringType::CommonEdge);
 
   // The shared vertex/edge must be mapped to the same physical points.
-  for (const auto &[a, b] : {std::make_pair(&e0, &e1), std::make_pair(&e0, &e3)})
+  for (const auto &[a, b] :
+       {std::make_pair(&e0, &e1), std::make_pair(&e0, &e3)})
     {
       const TrianglePairInfo info = detect_triangle_pair(*a, *b);
       const PermutedTriangle tx(*a, info.kx_permutation);
       const PermutedTriangle ty(*b, info.ky_permutation);
-      REQUIRE((tx.map_to_real(Point(0., 0.)) - ty.map_to_real(Point(0., 0.)))
-                .norm() < 1e-14);
+      REQUIRE(
+        (tx.map_to_real(Point(0., 0.)) - ty.map_to_real(Point(0., 0.))).norm() <
+        1e-14);
       if (info.type == CellNeighboringType::CommonEdge)
-        REQUIRE(
-          (tx.map_to_real(Point(1., 0.)) - ty.map_to_real(Point(1., 0.)))
-            .norm() < 1e-14);
+        REQUIRE((tx.map_to_real(Point(1., 0.)) - ty.map_to_real(Point(1., 0.)))
+                  .norm() < 1e-14);
     }
 
   // The map to libMesh reference coordinates must be consistent with
@@ -226,13 +226,9 @@ TEST_CASE("Sauter quadrature is consistent under refinement", "[libmesh_bem]")
 
 TEST_CASE("Analytical integral for the same panel case", "[libmesh_bem]")
 {
-  // Equilateral triangle T with unit edge length. The inner integral
-  // \f$\int_T \frac{1}{|x-y|} \mathrm{d}s_y\f$ for \f$x \in T\f$ is
-  // evaluated analytically: in polar coordinates around x it equals
-  // \f$\sum_e d_e(x) \int_e \frac{1}{|x-y|} \mathrm{d}s_y\f$, where
-  // \f$d_e(x)\f$ is the distance from x to the line of edge e, and the edge
-  // integral is an @p asinh expression. The outer integral is computed with a
-  // high-order triangle rule.
+  // For the equilateral triangle T with unit edge length,
+  // \f$\int_T \int_T \frac{1}{|x-y|} \mathrm{d}s_y \mathrm{d}s_x =
+  // \frac{3}{4} \ln 3\f$.
   libMesh::ReplicatedMesh mesh(
     HierBEM::LibMeshBEM::testing::libmesh_init->comm(), 3);
   mesh.add_point(Point(0., 0., 0.), 0);
@@ -241,37 +237,20 @@ TEST_CASE("Analytical integral for the same panel case", "[libmesh_bem]")
   add_triangle(mesh, {{0, 1, 2}});
   mesh.prepare_for_use();
 
+  const Real reference = 0.75 * std::log(3.);
+
   SauterQuadOrder order;
-  order.same_panel = 10;
-  const SauterTriangleQuadrature quad(order);
-  const Real I = slp_integral(mesh.elem_ref(0), mesh.elem_ref(0), quad) * 4. *
-                 libMesh::pi;
+  order.same_panel  = 10;
+  const Real I_high = slp_integral(mesh.elem_ref(0),
+                                   mesh.elem_ref(0),
+                                   SauterTriangleQuadrature(order)) *
+                      4. * libMesh::pi;
+  REQUIRE(I_high == Catch::Approx(reference).epsilon(1e-11));
 
-  const std::array<Point, 3> v{
-    {mesh.point(0), mesh.point(1), mesh.point(2)}};
-  const auto edge_potential = [&](const Point &x) {
-    Real sum = 0.;
-    for (unsigned int e = 0; e < 3; ++e)
-      {
-        const Point a = v[e];
-        const Point b = v[(e + 1) % 3];
-        const Point t = (b - a) / (b - a).norm();
-        const Real  s0 = (a - x) * t;
-        const Real  s1 = (b - x) * t;
-        const Point foot = a - s0 * t;
-        const Real  d    = (x - foot).norm();
-        sum += d * (std::asinh(s1 / d) - std::asinh(s0 / d));
-      }
-    return sum;
-  };
-
-  std::vector<Point> qp;
-  std::vector<Real>  qw;
-  gauss_rule_on_sauter_reference_triangle(15, qp, qw);
-  const PermutedTriangle t(mesh.elem_ref(0), {{0, 1, 2}});
-  Real                   reference = 0.;
-  for (std::size_t q = 0; q < qp.size(); ++q)
-    reference += edge_potential(t.map_to_real(qp[q])) * qw[q] * t.jacobian();
-
-  REQUIRE(I == Catch::Approx(reference).epsilon(1e-6));
+  // Default order.
+  const Real I_default = slp_integral(mesh.elem_ref(0),
+                                      mesh.elem_ref(0),
+                                      SauterTriangleQuadrature()) *
+                         4. * libMesh::pi;
+  REQUIRE(I_default == Catch::Approx(reference).epsilon(1e-6));
 }

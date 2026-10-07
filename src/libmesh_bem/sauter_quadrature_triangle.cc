@@ -60,7 +60,8 @@ namespace HierBEM
             for (std::size_t i2 = 0; i2 < n; ++i2)
               for (std::size_t i3 = 0; i3 < n; ++i3)
                 {
-                  const std::array<Real, 4> coords{{p[i0], p[i1], p[i2], p[i3]}};
+                  const std::array<Real, 4> coords{
+                    {p[i0], p[i1], p[i2], p[i3]}};
                   const Real w4 = w[i0] * w[i1] * w[i2] * w[i3];
 
                   for (unsigned int k = 0; k < n_subregions; ++k)
@@ -169,18 +170,22 @@ namespace HierBEM
         {
           case 0:
             kx_unit_cell_coords = Point(xi, xi * (1. - e1 + e1 * e2));
-            ky_unit_cell_coords = Point(xi * (1. - e1 * e2 * e3), xi * (1. - e1));
+            ky_unit_cell_coords =
+              Point(xi * (1. - e1 * e2 * e3), xi * (1. - e1));
             break;
           case 1:
-            kx_unit_cell_coords = Point(xi * (1. - e1 * e2 * e3), xi * (1. - e1));
+            kx_unit_cell_coords =
+              Point(xi * (1. - e1 * e2 * e3), xi * (1. - e1));
             ky_unit_cell_coords = Point(xi, xi * (1. - e1 + e1 * e2));
             break;
           case 2:
             kx_unit_cell_coords = Point(xi, xi * e1 * (1. - e2 + e2 * e3));
-            ky_unit_cell_coords = Point(xi * (1. - e1 * e2), xi * e1 * (1. - e2));
+            ky_unit_cell_coords =
+              Point(xi * (1. - e1 * e2), xi * e1 * (1. - e2));
             break;
           case 3:
-            kx_unit_cell_coords = Point(xi * (1. - e1 * e2), xi * e1 * (1. - e2));
+            kx_unit_cell_coords =
+              Point(xi * (1. - e1 * e2), xi * e1 * (1. - e2));
             ky_unit_cell_coords = Point(xi, xi * e1 * (1. - e2 + e2 * e3));
             break;
           case 4:
@@ -218,7 +223,8 @@ namespace HierBEM
         {
           case 0:
             kx_unit_cell_coords = Point(xi, xi * e1 * e3);
-            ky_unit_cell_coords = Point(xi * (1. - e1 * e2), xi * e1 * (1. - e2));
+            ky_unit_cell_coords =
+              Point(xi * (1. - e1 * e2), xi * e1 * (1. - e2));
             return xi * xi * xi * e1 * e1;
           case 1:
             kx_unit_cell_coords = Point(xi, xi * e1);
@@ -226,7 +232,8 @@ namespace HierBEM
               Point(xi * (1. - e1 * e2 * e3), xi * e1 * e2 * (1. - e3));
             break;
           case 2:
-            kx_unit_cell_coords = Point(xi * (1. - e1 * e2), xi * e1 * (1. - e2));
+            kx_unit_cell_coords =
+              Point(xi * (1. - e1 * e2), xi * e1 * (1. - e2));
             ky_unit_cell_coords = Point(xi, xi * e1 * e2 * e3);
             break;
           case 3:

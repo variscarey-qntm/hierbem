@@ -71,10 +71,10 @@ namespace
    * MSH 2.2 ASCII format, which can be visualized directly in Gmsh.
    */
   void
-  write_gmsh_element_data(const std::string                         &filename,
-                          const libMesh::MeshBase                   &mesh,
-                          const std::vector<const libMesh::Elem *>  &elems,
-                          const libMesh::DenseVector<Real>          &sigma)
+  write_gmsh_element_data(const std::string                        &filename,
+                          const libMesh::MeshBase                  &mesh,
+                          const std::vector<const libMesh::Elem *> &elems,
+                          const libMesh::DenseVector<Real>         &sigma)
   {
     std::ofstream out(filename);
     out << std::setprecision(16);
@@ -98,8 +98,9 @@ namespace
       }
     out << "$EndElements\n";
 
-    out << "$ElementData\n1\n\"surface charge density [C/m^2]\"\n1\n0.0\n3\n0\n1\n"
-        << elems.size() << "\n";
+    out
+      << "$ElementData\n1\n\"surface charge density [C/m^2]\"\n1\n0.0\n3\n0\n1\n"
+      << elems.size() << "\n";
     for (std::size_t i = 0; i < elems.size(); ++i)
       out << i + 1 << " " << sigma(i) << "\n";
     out << "$EndElementData\n";
@@ -112,8 +113,9 @@ main(int argc, char **argv)
 {
   libMesh::LibMeshInit init(argc, argv);
 
-  const std::string mesh_file = libMesh::command_line_next(
-    "--mesh", std::string(SOURCE_DIR "/unit_square.msh"));
+  const std::string mesh_file =
+    libMesh::command_line_next("--mesh",
+                               std::string(SOURCE_DIR "/unit_square.msh"));
   const Real        potential = libMesh::command_line_next("--potential", 1.0);
   const std::string output_prefix =
     libMesh::command_line_next("--output-prefix", std::string("plate"));
@@ -141,9 +143,9 @@ main(int argc, char **argv)
                << order.common_vertex << ", " << order.regular << std::endl;
 
   // Assemble the single layer matrix and the right hand side.
-  const auto                       t0 = std::chrono::steady_clock::now();
-  const SauterTriangleQuadrature   quad(order);
-  libMesh::DenseMatrix<Real>       V =
+  const auto                     t0 = std::chrono::steady_clock::now();
+  const SauterTriangleQuadrature quad(order);
+  libMesh::DenseMatrix<Real>     V =
     assemble_p0_matrix(elems, LaplaceSingleLayerKernel(), quad, true);
   libMesh::DenseVector<Real> b = assemble_p0_rhs(
     elems, [potential](const libMesh::Point &) { return potential; }, 2);
@@ -171,20 +173,19 @@ main(int argc, char **argv)
   const Real reference_capacitance =
     normalized_reference_capacitance * 4. * libMesh::pi * epsilon0;
 
-  libMesh::out << std::setprecision(8) << "Number of triangles: "
-               << elems.size() << "\n"
+  libMesh::out << std::setprecision(8)
+               << "Number of triangles: " << elems.size() << "\n"
                << "Assembly time [s]: "
                << std::chrono::duration<double>(t1 - t0).count() << "\n"
                << "Solve time [s]: "
                << std::chrono::duration<double>(t2 - t1).count() << "\n"
-               << "Surface charge density range [C/m^2]: [" << sigma_min
-               << ", " << sigma_max << "]\n"
+               << "Surface charge density range [C/m^2]: [" << sigma_min << ", "
+               << sigma_max << "]\n"
                << "Total charge [C]: " << total_charge << "\n"
                << "Capacitance [F]: " << capacitance << "\n"
                << "Normalized capacitance C/(4 pi eps0): "
                << capacitance / (4. * libMesh::pi * epsilon0) << "\n"
-               << "Reference capacitance [F]: " << reference_capacitance
-               << "\n"
+               << "Reference capacitance [F]: " << reference_capacitance << "\n"
                << "Relative error: "
                << std::abs(capacitance - reference_capacitance) /
                     reference_capacitance

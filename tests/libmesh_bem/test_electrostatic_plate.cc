@@ -13,10 +13,9 @@
  * @brief Capacitance of the unit square plate computed with P0 Galerkin BEM.
  */
 
-#include <libmesh/replicated_mesh.h>
-
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <libmesh/replicated_mesh.h>
 
 #include "libmesh_bem/galerkin_assembly.h"
 #include "libmesh_bem/gmsh_io.h"

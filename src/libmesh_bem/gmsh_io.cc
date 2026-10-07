@@ -183,7 +183,8 @@ namespace HierBEM
        * Skip lines until the line @p end_tag is found.
        */
       void
-      skip_to(std::istream &in, const std::string &end_tag,
+      skip_to(std::istream      &in,
+              const std::string &end_tag,
               const std::string &filename)
       {
         std::string line;
@@ -200,9 +201,9 @@ namespace HierBEM
 
       struct MeshFormat
       {
-        double version     = 0.;
-        int    file_type   = 0;
-        int    data_size   = 0;
+        double version   = 0.;
+        int    file_type = 0;
+        int    data_size = 0;
       };
 
 
@@ -243,12 +244,12 @@ namespace HierBEM
       BinaryReader reader(in, filename);
 
       // Entity tag of surfaces => physical tag.
-      std::map<int, int>                                        surface_phys;
-      std::map<int, std::string>                                phys_names;
-      std::unordered_map<std::uint64_t, libMesh::Point>         node_coords;
-      bool                                                      has_format = false;
-      bool                                                      has_nodes  = false;
-      bool                                                      has_elems  = false;
+      std::map<int, int>                                surface_phys;
+      std::map<int, std::string>                        phys_names;
+      std::unordered_map<std::uint64_t, libMesh::Point> node_coords;
+      bool                                              has_format = false;
+      bool                                              has_nodes  = false;
+      bool                                              has_elems  = false;
 
       struct ElementRecord
       {
@@ -356,8 +357,8 @@ namespace HierBEM
             }
           else if (line == "$PartitionedEntities")
             {
-              libmesh_error_msg("Partitioned Gmsh meshes are not supported: "
-                                << filename);
+              libmesh_error_msg(
+                "Partitioned Gmsh meshes are not supported: " << filename);
             }
           else if (line == "$Nodes")
             {
@@ -428,9 +429,10 @@ namespace HierBEM
                       continue;
                     }
 
-                  const auto it_phys = surface_phys.find(entity_tag);
-                  const int  subdomain =
-                    it_phys != surface_phys.end() ? it_phys->second : entity_tag;
+                  const auto it_phys   = surface_phys.find(entity_tag);
+                  const int  subdomain = it_phys != surface_phys.end() ?
+                                           it_phys->second :
+                                           entity_tag;
 
                   for (std::uint64_t e = 0; e < n_in_block; ++e)
                     {
@@ -482,13 +484,13 @@ namespace HierBEM
                 {
                   const auto c = node_coords.find(rec.nodes[i]);
                   libmesh_error_msg_if(c == node_coords.end(),
-                                       "Unknown node tag " << rec.nodes[i]
-                                                           << " in "
-                                                           << filename);
-                  libMesh::Node *node = mesh.add_point(c->second, next_node_id++);
+                                       "Unknown node tag "
+                                         << rec.nodes[i] << " in " << filename);
+                  libMesh::Node *node =
+                    mesh.add_point(c->second, next_node_id++);
                   it = tag_to_node.emplace(rec.nodes[i], node).first;
                 }
-              elem->set_node(i, it->second);
+              elem->set_node(i) = it->second;
             }
           elem->subdomain_id() =
             static_cast<libMesh::subdomain_id_type>(rec.subdomain);

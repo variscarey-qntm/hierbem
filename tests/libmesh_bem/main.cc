@@ -13,9 +13,8 @@
  * @brief Catch2 main function which initializes libMesh.
  */
 
-#include <libmesh/libmesh.h>
-
 #include <catch2/catch_session.hpp>
+#include <libmesh/libmesh.h>
 
 #include "test_common.h"
 

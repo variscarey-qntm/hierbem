@@ -1,0 +1,46 @@
+# Surface charge density on a unit square plate (libMesh backend)
+
+This example computes the surface charge density $\sigma$ on a thin, perfectly conducting unit square plate $\Gamma = [0,1]^2 \times \{0\}$ held at a constant potential $U$ in free space. It uses the libMesh backend of HierBEM with triangular elements.
+
+The total charge density (sum of both sides of the plate) satisfies the first kind integral equation
+
+$$
+\frac{1}{4\pi\varepsilon_0} \int_{\Gamma} \frac{\sigma(y)}{|x-y|} \, \mathrm{d}s_y = U, \quad x \in \Gamma,
+$$
+
+which is solved by a Galerkin BEM with piecewise constant basis functions on triangles. The Galerkin matrix of the single layer operator is computed with the Sauter–Schwab quadrature for triangle pairs (`include/libmesh_bem/sauter_quadrature_triangle.h`), the triangular counterpart of the deal.II based quadrilateral quadrature in `include/quadrature/sauter_quadrature_tools.h`.
+
+## Mesh
+
+`unit_square.msh` is a triangular mesh (242 triangles, mesh size 0.1) in the **Gmsh MSH 4.1 binary** format. It is read by `HierBEM::LibMeshBEM::read_gmsh41_binary`, since libMesh's `GmshIO` only supports ASCII files. Meshes with other mesh sizes can be generated with the Gmsh Python API:
+
+```bash
+pip install gmsh
+python3 generate_unit_square_mesh.py unit_square_fine.msh 0.05
+```
+
+## Build and run
+
+Build HierBEM with `-DHBEM_USE_LIBMESH=ON` (see `BUILD.md`), then:
+
+```bash
+cd <build_dir>/examples/libmesh-electrostatic-plate
+./solve-electrostatic-plate [--mesh unit_square.msh] [--potential 1.0] \
+  [--same-panel 5] [--common-edge 4] [--common-vertex 4] [--regular 3] \
+  [--output-prefix plate]
+```
+
+The quadrature orders are the numbers of Gauss points per direction in the 4D unit cube for the singular cases, and a triangle Gauss rule of the same polynomial exactness for the regular case, matching the deal.II based `SauterQuadOrder`.
+
+## Output
+
+* `plate-charge-density.csv`: element centroids, areas and charge densities in C/m².
+* `plate-charge-density.msh`: mesh with the charge density as element data in the Gmsh MSH 2.2 ASCII format, which can be opened in Gmsh directly.
+* The total charge and the capacitance $C = Q/U$, compared with the reference value $C \approx 0.3667874 \cdot 4\pi\varepsilon_0 \cdot 1\,\mathrm{m} \approx 40.81\,\mathrm{pF}$:
+
+| Mesh size | Triangles | $C/(4\pi\varepsilon_0)$ | Relative error |
+|-----------|-----------|-------------------------|----------------|
+| 0.1       | 242       | 0.36205                 | 1.3 %          |
+| 0.05      | 944       | 0.36437                 | 0.66 %         |
+
+The charge density is singular at the edges and corners of the plate, which limits the convergence rate on quasi-uniform meshes.

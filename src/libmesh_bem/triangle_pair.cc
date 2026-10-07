@@ -39,8 +39,9 @@ namespace HierBEM
       for (unsigned int i = 0; i < 3; ++i)
         vertices[i] = elem.point(perm[i]);
 
-      const Point n = (vertices[1] - vertices[0]).cross(vertices[2] - vertices[1]);
-      jac           = n.norm();
+      const Point n =
+        (vertices[1] - vertices[0]).cross(vertices[2] - vertices[1]);
+      jac = n.norm();
       libmesh_error_msg_if(jac <= 0., "Degenerate triangle " << elem.id());
 
       // The normal is oriented with respect to the original vertex order. An
@@ -97,8 +98,7 @@ namespace HierBEM
           case 0:
             info.type = CellNeighboringType::Regular;
             break;
-          case 1:
-            {
+            case 1: {
               const unsigned int i0 = shared[0].first;
               const unsigned int j0 = shared[0].second;
               info.type             = CellNeighboringType::CommonVertex;
@@ -106,17 +106,15 @@ namespace HierBEM
               info.ky_permutation   = {{j0, (j0 + 1) % 3, (j0 + 2) % 3}};
               break;
             }
-          case 2:
-            {
-              const auto [i0, j0]   = shared[0];
-              const auto [i1, j1]   = shared[1];
-              info.type             = CellNeighboringType::CommonEdge;
-              info.kx_permutation   = {{i0, i1, 3 - i0 - i1}};
-              info.ky_permutation   = {{j0, j1, 3 - j0 - j1}};
+            case 2: {
+              const auto [i0, j0] = shared[0];
+              const auto [i1, j1] = shared[1];
+              info.type           = CellNeighboringType::CommonEdge;
+              info.kx_permutation = {{i0, i1, 3 - i0 - i1}};
+              info.ky_permutation = {{j0, j1, 3 - j0 - j1}};
               break;
             }
-          case 3:
-            {
+            case 3: {
               // Two distinct elements with the same vertices: treat them as
               // the same panel with matching vertex order.
               info.type = CellNeighboringType::SamePanel;

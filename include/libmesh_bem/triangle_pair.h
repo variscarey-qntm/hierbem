@@ -169,13 +169,14 @@ namespace HierBEM
                                Integrand                     &&f)
     {
       Number result(0);
-      for_each_quadrature_point_pair(
-        kx,
-        ky,
-        quad,
-        [&](const TriangleQuadraturePointData &x,
-            const TriangleQuadraturePointData &y,
-            const libMesh::Real                JxW) { result += f(x, y) * JxW; });
+      for_each_quadrature_point_pair(kx,
+                                     ky,
+                                     quad,
+                                     [&](const TriangleQuadraturePointData &x,
+                                         const TriangleQuadraturePointData &y,
+                                         const libMesh::Real JxW) {
+                                       result += f(x, y) * JxW;
+                                     });
       return result;
     }
   } // namespace LibMeshBEM

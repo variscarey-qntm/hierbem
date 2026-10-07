@@ -41,7 +41,7 @@ namespace HierBEM
 
     libMesh::DenseVector<Real>
     assemble_p0_rhs(const std::vector<const libMesh::Elem *> &elems,
-                    const std::function<Real(const Point &)>  &g,
+                    const std::function<Real(const Point &)> &g,
                     const unsigned int                        n_points)
     {
       std::vector<Point> qp;

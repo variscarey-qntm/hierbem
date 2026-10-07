@@ -13,13 +13,13 @@
  * @brief Verify the Gmsh MSH 4.1 binary reader against libMesh's ASCII reader.
  */
 
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <libmesh/elem.h>
 #include <libmesh/replicated_mesh.h>
 
-#include <catch2/catch_approx.hpp>
-#include <catch2/catch_test_macros.hpp>
-
 #include <algorithm>
+#include <cmath>
 #include <vector>
 
 #include "libmesh_bem/gmsh_io.h"
@@ -45,7 +45,8 @@ namespace
           continue;
         std::vector<std::vector<Real>> v;
         for (unsigned int i = 0; i < elem->n_vertices(); ++i)
-          v.push_back({elem->point(i)(0), elem->point(i)(1), elem->point(i)(2)});
+          v.push_back(
+            {elem->point(i)(0), elem->point(i)(1), elem->point(i)(2)});
         std::sort(v.begin(), v.end());
         std::vector<Real> flat;
         for (const auto &p : v)
@@ -83,7 +84,13 @@ TEST_CASE("Read Gmsh MSH 4.1 binary file", "[libmesh_bem]")
   REQUIRE(area == Catch::Approx(1.0).epsilon(1e-12));
   REQUIRE(binary_mesh.subdomain_name(1) == "plate");
 
-  REQUIRE(canonical_triangles(binary_mesh) == canonical_triangles(ascii_mesh));
+  // The ASCII file stores the coordinates with 16 significant digits only.
+  const auto binary_tris = canonical_triangles(binary_mesh);
+  const auto ascii_tris  = canonical_triangles(ascii_mesh);
+  REQUIRE(binary_tris.size() == ascii_tris.size());
+  for (std::size_t i = 0; i < binary_tris.size(); ++i)
+    for (std::size_t j = 0; j < binary_tris[i].size(); ++j)
+      REQUIRE(std::abs(binary_tris[i][j] - ascii_tris[i][j]) < 1e-14);
 }
 
 
