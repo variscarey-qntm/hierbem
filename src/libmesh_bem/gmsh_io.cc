@@ -243,6 +243,17 @@ namespace HierBEM
 
       BinaryReader reader(in, filename);
 
+      // File size, used for validating counts read from the file before
+      // allocating memory.
+      in.seekg(0, std::ios::end);
+      const std::uint64_t file_size = static_cast<std::uint64_t>(in.tellg());
+      in.seekg(0, std::ios::beg);
+      const auto check_count = [&](const std::uint64_t count,
+                                   const std::uint64_t bytes_per_item) {
+        libmesh_error_msg_if(count > file_size / bytes_per_item,
+                             "Corrupted Gmsh file " << filename);
+      };
+
       // Entity tag of surfaces => physical tag.
       std::map<int, int>                                surface_phys;
       std::map<int, std::string>                        phys_names;
@@ -368,6 +379,7 @@ namespace HierBEM
               const std::uint64_t n_nodes  = reader.read_size_t();
               reader.read_size_t(); // min node tag
               reader.read_size_t(); // max node tag
+              check_count(n_nodes, 3 * sizeof(double));
               node_coords.reserve(n_nodes);
 
               std::vector<std::uint64_t> tags;
@@ -378,6 +390,7 @@ namespace HierBEM
                   const int           parametric = reader.read_int();
                   const std::uint64_t n_in_block = reader.read_size_t();
 
+                  check_count(n_in_block, reader.size_t_size());
                   tags.resize(n_in_block);
                   for (auto &t : tags)
                     t = reader.read_size_t();

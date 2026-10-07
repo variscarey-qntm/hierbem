@@ -44,8 +44,9 @@ namespace HierBEM
       jac = n.norm();
       libmesh_error_msg_if(jac <= 0., "Degenerate triangle " << elem.id());
 
-      // The normal is oriented with respect to the original vertex order. An
-      // odd permutation flips the orientation.
+      // The normal is computed from the original vertex order on purpose, so
+      // that it does not depend on the permutation (an odd permutation would
+      // otherwise flip it).
       const Point n_orig =
         (elem.point(1) - elem.point(0)).cross(elem.point(2) - elem.point(0));
       unit_normal = n_orig / n_orig.norm();

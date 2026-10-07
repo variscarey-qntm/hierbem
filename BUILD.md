@@ -253,6 +253,7 @@ At the moment, Julia and GNU Octave are adopted to verify computation results in
   The default values of these configuration flags can be modified in `include/CMakeLists.txt`.
 
 * After HierBEM is built, the library `libhierbem.so` will be generated in the folder `CMAKE_BINARY_DIR/src` and all test case executables will be generated in their corresponding folders.
+
 # Build the libMesh backend (triangular meshes)
 
 HierBEM provides an optional libMesh based backend for Galerkin BEM on triangular surface meshes. It is independent of deal.II and CUDA and is enabled with `-DHBEM_USE_LIBMESH=ON`. In this mode only the libMesh components (`include/libmesh_bem`, `src/libmesh_bem`), the example `examples/libmesh-electrostatic-plate` and the tests in `tests/libmesh_bem` are built.
@@ -285,6 +286,6 @@ HierBEM provides an optional libMesh based backend for Galerkin BEM on triangula
   Additional configuration flags:
 
     * `LIBMESH_DIR` - installation prefix of libMesh. It can also be given as an environment variable. libMesh is located via its pkg-config file `libmesh-<method>.pc`.
-    * `HBEM_LIBMESH_METHOD` - libMesh build method, default to `opt`.
+    * `HBEM_LIBMESH_METHOD` - libMesh build method, defaults to `opt`.
 
 * The library `libhierbem_libmesh.so`, the example executable `examples/libmesh-electrostatic-plate/solve-electrostatic-plate` and the test executable `tests/libmesh_bem/libmesh-bem-tests` will be generated in the build directory.
