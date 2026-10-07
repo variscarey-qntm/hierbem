@@ -46,11 +46,13 @@ Use `--order 0` to reproduce the original piecewise-constant solve. `--potential
 
 Total charge is integrated using the basis-function integrals, rather than treating nodal coefficients as elementwise constants. The printed density range is the range of coefficients; quadratic interpolants may have extrema between nodes.
 
-Original P0 results:
+Dense results with unit potential and default quadrature:
 
-| Mesh size | Triangles | $C/(4\pi\varepsilon_0)$ | Relative error |
-|-----------|-----------|-------------------------|----------------|
-| 0.1       | 242       | 0.36205                 | 1.3 %          |
-| 0.05      | 944       | 0.36437                 | 0.66 %         |
+| Basis | Mesh size | Triangles | DOFs | $C/(4\pi\varepsilon_0)$ | Relative error |
+|-------|-----------|-----------|------|-------------------------|----------------|
+| P0    | 0.1       | 242       | 242  | 0.36205                 | 1.3 %          |
+| P1    | 0.1       | 242       | 142  | 0.36406                 | 0.74 %         |
+| P2    | 0.1       | 242       | 525  | 0.36551                 | 0.35 %         |
+| P0    | 0.05      | 944       | 944  | 0.36437                 | 0.66 %         |
 
 The charge density is singular at the edges and corners of the plate, which limits the convergence rate on quasi-uniform meshes.
