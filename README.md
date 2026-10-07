@@ -70,6 +70,10 @@ Target applications include a wide range of physical problems, such as electroma
 * [GNU Octave](https://octave.org/) ≥ 7.3.0
 * [Julia](https://julialang.org/) ≥ 1.10
 
+Optional libMesh backend for triangular meshes (see [BUILD.md](BUILD.md#build-the-libmesh-backend-triangular-meshes)):
+
+* [libMesh](https://libmesh.github.io/) ≥ 1.8 (deal.II and CUDA are not required in this mode)
+
 # Build HierBEM
 
 Please see [BUILD.md](BUILD.md) for details.

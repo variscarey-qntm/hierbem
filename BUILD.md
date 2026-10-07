@@ -253,3 +253,39 @@ At the moment, Julia and GNU Octave are adopted to verify computation results in
   The default values of these configuration flags can be modified in `include/CMakeLists.txt`.
 
 * After HierBEM is built, the library `libhierbem.so` will be generated in the folder `CMAKE_BINARY_DIR/src` and all test case executables will be generated in their corresponding folders.
+
+# Build the libMesh backend (triangular meshes)
+
+HierBEM provides an optional libMesh based backend for Galerkin BEM on triangular surface meshes. It is independent of deal.II and CUDA and is enabled with `-DHBEM_USE_LIBMESH=ON`. In this mode only the libMesh components (`include/libmesh_bem`, `src/libmesh_bem`), the example `examples/libmesh-electrostatic-plate` and the tests in `tests/libmesh_bem` are built.
+
+* Build and install [libMesh](https://libmesh.github.io/) (tested with 1.8.4). A minimal configuration, which is sufficient for HierBEM, is:
+
+  ```bash
+  tar xjf libmesh-1.8.4.tar.bz2
+  mkdir libmesh-build && cd libmesh-build
+  CXX=mpicxx CC=mpicc FC=mpif90 F77=mpif77 ../libmesh-1.8.4/configure \
+    --prefix=<libmesh_install_prefix> --with-methods=opt \
+    --disable-petsc --disable-slepc --disable-trilinos --disable-vtk \
+    --disable-hdf5 --disable-netcdf --disable-exodus --disable-nemesis \
+    --disable-netgen --disable-examples
+  make -j <n> && make install
+  ```
+
+* Configure and build HierBEM:
+
+  ```bash
+  mkdir build-libmesh && cd build-libmesh
+  cmake -DHBEM_USE_LIBMESH=ON \
+    -DLIBMESH_DIR=<libmesh_install_prefix> \
+    -DCMAKE_CXX_COMPILER=mpicxx \
+    ../hierbem
+  make -j <n>
+  ctest
+  ```
+
+  Additional configuration flags:
+
+    * `LIBMESH_DIR` - installation prefix of libMesh. It can also be given as an environment variable. libMesh is located via its pkg-config file `libmesh-<method>.pc`.
+    * `HBEM_LIBMESH_METHOD` - libMesh build method, defaults to `opt`.
+
+* The library `libhierbem_libmesh.so`, the example executable `examples/libmesh-electrostatic-plate/solve-electrostatic-plate` and the test executable `tests/libmesh_bem/libmesh-bem-tests` will be generated in the build directory.

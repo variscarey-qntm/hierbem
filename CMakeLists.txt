@@ -22,6 +22,17 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.27.0")
   cmake_policy(SET CMP0167 NEW)
 endif()
 
+# Optional libMesh backend: when enabled, only the libMesh based triangular
+# Galerkin BEM components are built, without deal.II and CUDA.
+option(HBEM_USE_LIBMESH
+       "Build the libMesh based triangular BEM backend instead of deal.II/CUDA"
+       OFF)
+if(HBEM_USE_LIBMESH)
+  project("hierbem" LANGUAGES CXX)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/libmesh_backend.cmake)
+  return()
+endif()
+
 # Project name
 project("hierbem" LANGUAGES CUDA CXX)
 
