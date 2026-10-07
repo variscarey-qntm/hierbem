@@ -19,7 +19,8 @@ set(_target libmesh-bem-tests)
 
 add_executable(
   ${_target} main.cc test_sauter_quadrature_triangle.cc test_gmsh_io.cc
-             test_electrostatic_plate.cc test_lagrange_assembly.cc)
+             test_electrostatic_plate.cc test_lagrange_assembly.cc
+             test_single_layer_entry.cc)
 
 target_compile_definitions(
   ${_target}

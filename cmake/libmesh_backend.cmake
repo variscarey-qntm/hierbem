@@ -53,6 +53,7 @@ add_library(
   ${CMAKE_SOURCE_DIR}/src/libmesh_bem/sauter_quadrature_triangle.cc
   ${CMAKE_SOURCE_DIR}/src/libmesh_bem/triangle_pair.cc
   ${CMAKE_SOURCE_DIR}/src/libmesh_bem/galerkin_assembly.cc
+  ${CMAKE_SOURCE_DIR}/src/libmesh_bem/single_layer_entry.cc
   ${CMAKE_SOURCE_DIR}/src/libmesh_bem/gmsh_io.cc)
 target_include_directories(hierbem_libmesh
                            PUBLIC ${CMAKE_SOURCE_DIR}/include)

@@ -289,3 +289,5 @@ HierBEM provides an optional libMesh based backend for Galerkin BEM on triangula
     * `HBEM_LIBMESH_METHOD` - libMesh build method, defaults to `opt`.
 
 * The library `libhierbem_libmesh.so`, the example executable `examples/libmesh-electrostatic-plate/solve-electrostatic-plate` and the test executable `tests/libmesh_bem/libmesh-bem-tests` will be generated in the build directory.
+
+* Single entries of the Laplace single layer matrix for P0, P1 and P2 elements can be computed without dense assembly with `SingleLayerEntryEvaluator` (`include/libmesh_bem/single_layer_entry.h`). `butterflypack_single_layer_element` wraps it as a ButterflyPACK `C_FuncZmn` element extraction callback (one-based indices in natural ordering, evaluator passed as the `C2Fptr` user pointer), e.g. `d_c_bpack_construct_element_compute(..., &butterflypack_single_layer_element, <block callback>, &evaluator)`.
